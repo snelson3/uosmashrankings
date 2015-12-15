@@ -1,7 +1,8 @@
 class Tournament:
-    def __init__(self):
+    def __init__(self,date):
         self.entrants = []
         self.bracket = []
+        self.date = date
         self.game = None
 
     def setGame(self,game):
@@ -52,3 +53,18 @@ class Tournament:
                 if (m.getPlayer1().getCID() == match.get('player2-id')):
                     return True
         return False
+
+    def rankPlayers(self):
+        '''Looks at the bracket and creates standings
+
+        First look at the last match in the list,
+            Winner got 1st
+            Loser got 2nd
+        set a var, pl = 3
+        then get a list with all the losers matches
+          rnd = list[-1]
+          iterate through the list, backwards
+          every match with rnd == rnd, loser gets pl
+          keep a counter of the people who are getting pl
+          when rnd changes, pl+= ctr'''
+        pass

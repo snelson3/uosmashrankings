@@ -1,4 +1,5 @@
-backuptournaments
-challonge
-tiofiles
+data
 tournaments
+*.pyc
+*.tio
+*.uotn
