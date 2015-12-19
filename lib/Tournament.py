@@ -1,3 +1,5 @@
+import operator
+
 class Tournament:
     def __init__(self,date):
         self.entrants = []
@@ -22,12 +24,6 @@ class Tournament:
             if (player.name == name):
                 return player
         return "ERR NAME NOT FOUND"
-
-    def getPlayerByCID(self,CID):
-        for player in self.entrants:
-            if (player.cid == CID):
-                return player
-        return "ERR CID NOT FOUND"
 
     def removeMatch(self,match):
        self.bracket.remove(match)
@@ -67,4 +63,36 @@ class Tournament:
           every match with rnd == rnd, loser gets pl
           keep a counter of the people who are getting pl
           when rnd changes, pl+= ctr'''
+        gf = self.bracket[-1]
+        gf.getWinner().setPlace(1)
+        gf.getLoser().setPlace(2)
+        gf.printResults()
+        losers = []
+        for m in self.bracket:
+            if m.isWinners():
+                continue
+            else:
+                losers.append(m)
+        rnd = losers[-1]
+        pl = 3
+        cntr = 0
+        print("LOSERS LEN "+str(len(losers)))
+        for i in range(len(losers)):
+            m = losers[-i-1]
+            m.printResults()
+            if m.isBye() or m.isNDone():
+                continue
+            print("Somebody's getting a place")
+            if rnd == m.rnd:
+                m.getLoser().setPlace(pl)
+                cntr += 1
+            else:
+                pl += cntr
+                cntr = 1
+                rnd = m.rnd
+                m.getLoser().setPlace(pl)
+        #debug stuff
+        self.entrants.sort(key=operator.attrgetter('place'));
+        for person in self.entrants:
+            print(str(person.place) + ": " + str(person.name))
         pass

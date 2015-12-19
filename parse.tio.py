@@ -64,15 +64,14 @@ class TournamentReader:
                 m = Match()
                 if (match.find('IsChampionship').text == "True"):
                     if (match.find('IsSecondChampionship').text == "True"):
-                        m.setNumber(int(match.find('Number').text)*2+1)
+                        m.setNumber(match.find('Number').text*2+1)
                     else:
-                        m.setNumber(int(match.find('Number').text)*2)
+                        m.setNumber(match.find('Number').text*2)
                 else:
-                    m.setNumber(int(match.find('Number').text))
+                    m.setNumber(match.find('Number').text)
                 m.setP1(self.getPlayer(match.find('Player1').text))
                 m.setP2(self.getPlayer(match.find('Player2').text))
                 m.setWinner(self.getPlayer(match.find('Winner').text))
-                m.setWinners(match.find('IsWinners').text)
                 m.setRND(match.find('Round').text)
                 if(m.isMatch()):
                     t.bracket.append(m)
@@ -84,8 +83,9 @@ def main():
     writer = TournamentWriter()
     reader.read()
 
-    #this means make sure the filename is right
     for tournament in reader.tournaments:
+        print("")
+        tournament.rankPlayers()
         writer.storeTournament(tournament,sys.argv[1])
 
 

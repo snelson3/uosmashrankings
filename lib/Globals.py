@@ -1,1 +1,1 @@
-TNFILENAME = "uotn"
+TNFILENAME = ".uotn"

@@ -3,10 +3,8 @@ class Match:
         self.player1 = None;
         self.player2 = None;
         self.rnd = None;
-        self.winners = True;
         self.number = None;
         self.winner = None;
-
 
     def getPlayer1(self):
         return self.player1
@@ -17,8 +15,8 @@ class Match:
     def getRND(self):
         return self.rnd
 
-    def getWinners(self):
-        return self.winners
+    def isWinners(self):
+        return self.rnd > 0
 
     def getNumber(self):
         return self.number
@@ -31,18 +29,20 @@ class Match:
 
     def setP2(self,p2):
         self.player2 = p2
-    
+
     def setP1(self,p1):
         self.player1 = p1
 
-    def setWinners(self,w):
-        self.winners = w
-
     def setRND(self,rnd):
-        self.rnd = rnd
+        self.rnd = int(rnd)
 
     def setNumber(self,n):
-        self.number = n
+        self.number = int(n)
+
+    def getLoser(self):
+        if self.player1 == self.winner:
+            return self.player2
+        return self.player1
 
     def isBye(self):
         if (self.player1.getID() == '00000001-0001-0001-0101-010101010101'):
@@ -56,7 +56,7 @@ class Match:
             return True
         elif (self.player2.getID() == '00000000-0000-0000-0000-000000000000'):
             return True
-        return false
+        return False
 
     def isMatch(self):
         if (self.player1.getID() == '00000000-0000-0000-0000-000000000000'):
@@ -64,3 +64,8 @@ class Match:
                 return False
         return True
 
+    def printResults(self):
+        print(str(self.number) + "   " + str(self.rnd))
+        print("\t"+self.winner.name+" !!!!")
+        print("\t"+self.getLoser().name)
+        print("")

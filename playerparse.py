@@ -38,7 +38,7 @@ class Player:
 		global env
 		self.name = str(name)
 		self.rating = env.Rating()
-		self.place = 0 #-1 means they are not ranked 
+		self.place = 0 #-1 means they are not ranked
 		self.oldplace = 0
 		self.temprating = env.expose(self.rating)
 		self.matches = []
@@ -210,9 +210,11 @@ def updateplacings(entrants,tourneylist):
 def main():
 	tempplayers = set()
 	players = []
+	files = []
 
 	#get a list of all the players who have competed in a tournament for GAME
 	for fn in os.listdir('tournaments/'+GAME):
+		files.append(fn)
 		f = open("tournaments/"+GAME+"/"+fn,"r")
 		di = json.load(f)
 		f.close()
@@ -224,8 +226,8 @@ def main():
 		players.append(Player(player))
 
 	tourneylist = []
-
-	for fn in os.listdir('tournaments/'+GAME):
+	files.sort()
+	for fn in files:
 		fo = open("tournaments/"+GAME+"/"+fn,"r")
 		di = json.load(fo)
 		fo.close()
@@ -238,7 +240,7 @@ def main():
 				continue
 			p1 = getPlayer(players,match.player1)
 			p2 = getPlayer(players,match.player2)
-			print(p1.name,p2.name)
+			#print(p1.name,p2.name)
 			if t.date not in p1.tournaments:
 				p1.tournaments.append(t.date)
 			if t.date not in p2.tournaments:
@@ -248,7 +250,7 @@ def main():
 			winner.wins+=1
 			winner.games+=1
 			loser.games+=1
-			match.setChange(env.expose(newp1) - env.expose(winner.rating), env.expose(newp2) - env.expose(loser.rating))			
+			match.setChange(env.expose(newp1) - env.expose(winner.rating), env.expose(newp2) - env.expose(loser.rating))
 			winner.rating = newp1
 			loser.rating = newp2
 
@@ -326,4 +328,3 @@ def main():
 
 
 main()
-

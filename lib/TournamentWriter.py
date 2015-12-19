@@ -21,7 +21,6 @@ class TournamentWriter:
                 m['Player1'] = match.player1.name
                 m['Player2'] = match.player2.name
                 m['rnd'] = match.rnd
-                m['winners'] = match.winners
                 m['number'] = match.number
                 m['winner'] = match.winner.name
                 matches.append(m)
