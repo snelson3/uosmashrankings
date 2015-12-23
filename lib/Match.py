@@ -1,4 +1,6 @@
 class Match:
+    ''' The Match class contains the information to do with a tournament set
+        between two players '''
     def __init__(self):
         self.player1 = None;
         self.player2 = None;

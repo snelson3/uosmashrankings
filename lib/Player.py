@@ -1,11 +1,13 @@
 class Player:
+    ''' Player object stores the ID/placing data for a player in the event '''
     def __init__(self,name):
+        if name == None:
+            raise Exception("Player must have a name")
         self.name = name
         self.id = None
         self.place = None
 
     def setPlace(self,pl):
-        print(self.name + " get's place " + str(pl))
         self.place = pl
 
     def getName(self):

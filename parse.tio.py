@@ -1,19 +1,7 @@
 #### TIO Parse ####
 #### Sam Nelson ####
-#### 15 December 2015 ####
+#### 19 December 2015 ####
 ##########################
-
-# This will parse a bracket from tio
-# After reading, the parsed brackets are Tournament objects
-#   stored in the TournamentReader.tournaments list
-# I should probably make these all work together, means breaking like
-# Match into it's own file, just cleaner and stuff
-
-#this breaks if two people have the same name
- #If tio allows people with the same name different capitalizations...
-#Change where Grand finals are to be after losers Finals in the list
-
-#add error checking and comments where appropriate
 
 import sys
 import xml.etree.ElementTree as ET
@@ -27,6 +15,8 @@ from lib.TournamentWriter import TournamentWriter
 
 class TournamentReader:
     def __init__(self,filename):
+        if filename == None:
+            raise Exception("Must provide a filename to a TIO file")
         self.filename = filename
         self.file = None
         self.players = []
@@ -35,6 +25,7 @@ class TournamentReader:
         self.game = ""
 
     def getPlayer(self,ID):
+        ''' Return the Player associated with the given ID '''
         if (ID == '00000001-0001-0001-0101-010101010101'):
             return Player('BYE')
         if (ID == '00000000-0000-0000-0000-000000000000'):
@@ -42,26 +33,29 @@ class TournamentReader:
         for player in self.players:
             if (player.id == ID):
                 return player
+        raise Exception("ID " + str(ID) + " Does not match a player")
 
     def read(self):
+        ''' Read a TIO file into a Tournament object '''
         tree = ET.parse(self.filename)
         root = tree.getroot()
 
         for item in root.iter('Event'):
             self.date = item.find('StartDate').text
-
         for player in root.iter('Player'):
             p = Player(player.find('Nickname').text)
             p.setId(player.find('ID').text)
             self.players.append(p)
         for tournament in root.iter('Game'):
             t = Tournament(self.date)
-            t.game = parseGame(tournament.find('Name').text)
+            t.setGame(str(tournament.find('Name').text))
             for entrant in tournament.iter('Entrant'):
                 p = self.getPlayer(entrant.find('PlayerID').text)
                 t.addPlayer(p)
             for match in tournament.iter('Match'):
                 m = Match()
+                ''' TIO stores the GF Set 1 at the end of Winners,
+                    This needs to be moved to be the second to last match '''
                 if (match.find('IsChampionship').text == "True"):
                     if (match.find('IsSecondChampionship').text == "True"):
                         m.setNumber(match.find('Number').text*2+1)
@@ -76,6 +70,13 @@ class TournamentReader:
                 if(m.isMatch()):
                     t.bracket.append(m)
             t.bracket.sort(key=operator.attrgetter('number'));
+            ''' Swap the position of the GF sets '''
+            set1 = t.bracket.pop()
+            set2 = t.bracket.pop()
+            set1.setNumber(set2.number)
+            set2.setNumber(set2.number+1)
+            t.bracket.append(set1)
+            t.bracket.append(set2)
             self.tournaments.append(t)
 
 def main():
@@ -84,18 +85,7 @@ def main():
     reader.read()
 
     for tournament in reader.tournaments:
-        print("")
         tournament.rankPlayers()
         writer.storeTournament(tournament,sys.argv[1])
-
-
-def parseGame(st):
-    #this is bad but it returns melee if the game starts with an m and a pm if it starts with a p
-    if st[0] == "M":
-        return "melee"
-    elif st[0] == "P":
-        return "pm"
-    else:
-        raise Exception("Event names must start with either Melee or Project")
 
 main()

@@ -3,10 +3,11 @@ from Globals import TNFILENAME
 
 class TournamentWriter:
         def storeTournament(self,tournament,fn):
-            '''Writes a uotn file in JSON that holds the tournament data.
+            '''Writes a TNFILENAME file in JSON that holds the tournament data.
                See the README for a description.
             '''
-
+            if fn == None:
+                raise Exception("Output filename cannot be blank")
             fn = fn.split('.')[0]
             out = open(fn+tournament.game+TNFILENAME, "w")
 
@@ -14,7 +15,7 @@ class TournamentWriter:
             matches = []
 
             for player in tournament.entrants:
-                players.append(player.name)
+                players.append((player.name,player.place))
 
             for match in tournament.bracket:
                 m = {}
