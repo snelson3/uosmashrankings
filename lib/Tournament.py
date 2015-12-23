@@ -37,9 +37,10 @@ class Tournament:
     def rankPlayers(self):
         ''' Assigns standings based on the results of the bracket '''
         gf = self.bracket[-1]
+        if gf.isMatch() == False:
+            gf = self.bracket[-2]
         gf.getWinner().setPlace(1)
         gf.getLoser().setPlace(2)
-        gf.printResults()
         losers = []
         for m in self.bracket:
             if m.isWinners():

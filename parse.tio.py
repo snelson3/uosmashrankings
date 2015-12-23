@@ -43,7 +43,10 @@ class TournamentReader:
         for item in root.iter('Event'):
             self.date = item.find('StartDate').text
         for player in root.iter('Player'):
-            p = Player(player.find('Nickname').text)
+            name = player.find('Name').text.strip()
+            if name == "":
+                name = player.find('Nickname').text
+            p = Player(name)
             p.setId(player.find('ID').text)
             self.players.append(p)
         for tournament in root.iter('Game'):
