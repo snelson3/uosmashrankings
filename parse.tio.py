@@ -6,7 +6,6 @@
 import sys
 import xml.etree.ElementTree as ET
 import operator
-import random
 import json
 from lib.Match import Match
 from lib.Tournament import Tournament

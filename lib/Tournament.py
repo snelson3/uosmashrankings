@@ -10,6 +10,9 @@ class Tournament:
 
     def setGame(self,game):
         '''Set the game to be lowercase alphanumeric characters only'''
+        if game == None:
+            self.game = ""
+            return
         g = game.lower().split(" ")
         st = ""
         for i in g:
