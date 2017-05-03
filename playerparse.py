@@ -6,6 +6,6 @@ for arg in sys.argv[1:]:
     league = League(TrueSkill(), arg)
     league.loadTournaments()
     league.loadPlayers()
-    for t in league.tournaments.values():
-        league.scoreTournament(t)
+    for t in sorted(league.tournaments.keys()):
+        league.scoreTournament(league.tournaments[t])
     league.writeRankings()

@@ -18,7 +18,7 @@ class League:
     def loadPlayers(self):
         for t in self.tournaments.values():
             for e in t.entrants:
-                self.players[e['name']] = Player(e['name'], self.env.Rating())
+                self.players[e['name']] = Player(e['name'], self.env.Rating(), self)
 
     def scoreTournament(self, t):
         print "DATE " + str(t.date)
@@ -27,7 +27,7 @@ class League:
                 continue
             self.scoreMatch(match)
         self.updatePlacings()
-        self.updateRanks(t.entrants)
+        self.updateRanks(t.entrants, t)
         t.writeUpdatedTournament()
 
     def getPlayer(self, name):
@@ -56,7 +56,7 @@ class League:
             newlist[i].place = i+1
         # Not sure if this method is relevant
 
-    def updateRanks(self, entrants):
+    def updateRanks(self, entrants, tournament):
         for p in entrants:
             player = self.players[p['name']]
             if (player.oldplace == -1) and (player.place != -1):
@@ -64,7 +64,7 @@ class League:
             else:
                 p['rank_change'] = player.oldplace-player.place
             player.oldplace = player.place
-            player.earnMedals()
+            player.earnMedals(tournament)
 
     def writeRankings(self):
         playerlist = []
