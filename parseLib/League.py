@@ -59,7 +59,7 @@ class League:
     def updateRanks(self, entrants):
         for p in entrants:
             player = self.players[p['name']]
-            if (player.oldplace == -1) and (player.place is not -1):
+            if (player.oldplace == -1) and (player.place != -1):
                 p['rank_change'] = 'Ranked!'
             else:
                 p['rank_change'] = player.oldplace-player.place
@@ -68,7 +68,7 @@ class League:
     def writeRankings(self):
         playerlist = []
         for player in self.players.values():
-            if player.name is 'BYE':
+            if player.name == 'BYE':
                 continue
             player.checkActive(self.tournaments)
             player.writeRank()

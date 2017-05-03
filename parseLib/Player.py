@@ -52,14 +52,14 @@ class Player:
                     'opponent': match.player2,
                     'opponent_skill_change': match.p2change,
                     'skill_change': match.p1change,
-                    'win': True if match.winner is self.name else False
+                    'win': True if match.winner == self.name else False
                 }
             else:
                 return {
                     'opponent': match.player1,
                     'opponent_skill_change': match.p1change,
                     'skill_change': match.p2change,
-                    'win': True if match.winner is self.name else False
+                    'win': True if match.winner == self.name else False
                 }
         return {
             'name': self.name,

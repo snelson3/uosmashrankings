@@ -21,7 +21,7 @@ class Match:
     def getResults(self,p1,p2):
         # return winner, loser
         assert self.winner in [p1.name, p2.name]
-        if self.winner is p1.name:
+        if self.winner == p1.name:
             return p1, p2
         return p2, p1
 
