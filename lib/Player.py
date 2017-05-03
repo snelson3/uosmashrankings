@@ -20,4 +20,4 @@ class Player:
         self.name = name
 
     def setId(self, ID):
-    	self.id = ID
+        self.id = ID
