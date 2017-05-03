@@ -13,6 +13,7 @@ class Player:
         self.matches = []
         self.game = game
         self.rank_change = ''
+        self.medals = {}
 
     def checkActive(self, tournaments):
         # Returns True if player has been to last ACTIVETHRESHOLD tournaments
@@ -68,6 +69,9 @@ class Player:
             'wins': self.getWins(),
             'tournaments': sorted(self.tournaments.keys()),
             'game': self.game,
-            'rank_change': self.rank_change
+            'rank_change': self.rank_change,
+            'medals': self.medals
         }
 
+    def earnMedals(self):
+        pass

@@ -64,6 +64,7 @@ class League:
             else:
                 p['rank_change'] = player.oldplace-player.place
             player.oldplace = player.place
+            player.earnMedals()
 
     def writeRankings(self):
         playerlist = []
