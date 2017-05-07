@@ -1,7 +1,8 @@
 from trueskill import TrueSkill
-from parseLib.League import League
+from uorank.parseLib.League import League
 import sys
 
+assert len(sys.argv) > 1
 for arg in sys.argv[1:]:
     league = League(TrueSkill(), arg)
     league.loadTournaments()

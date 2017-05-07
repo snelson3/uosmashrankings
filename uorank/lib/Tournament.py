@@ -13,11 +13,8 @@ class Tournament:
         if game == None:
             self.game = ""
             return
-        g = game.lower().split(" ")
-        st = ""
-        for i in g:
-            st+=i
-        self.game = st
+        self.game = ''.join(filter(lambda k: k.isalnum(), list(game))).lower()
+
 
     def getGame(self):
         return self.game
@@ -65,3 +62,4 @@ class Tournament:
                 cntr = 1
                 rnd = m.rnd
                 m.getLoser().setPlace(pl)
+

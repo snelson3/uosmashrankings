@@ -6,14 +6,11 @@
 import sys
 import challonge
 import random
-import json
-from lib.Match import Match
-from lib.Tournament import Tournament
-from lib.Player import Player
-from lib.TournamentWriter import TournamentWriter
-
-CHALLONGE_USERNAME = "thundrio"
-CHALLONGE_KEY = "cIXoy4tOCZohRn7Atj0Ft7Y5SuD2iWmBXPZDjzWR"
+import json, os
+from uorank.lib.Match import Match
+from uorank.lib.Tournament import Tournament
+from uorank.lib.Player import Player
+from uorank.lib.TournamentWriter import TournamentWriter
 
 class TournamentReader:
     def __init__(self,tid):
@@ -39,11 +36,13 @@ class TournamentReader:
     def parseDate(self,date):
         '''YYYY-MM-DDT16:57:17-05:00'''
         '''split date on T and return first part formatted MM/DD/YYYY'''
-        d = date.split('T')[0].split('-')
+        d = date.date().isoformat().split('-')
         return d[1]+"/"+d[2]+"/"+d[0]
 
     def getDate(self):
-        '''return date in yyyymmdd format'''
+        '''
+        return date in yyyymmdd format
+        '''
         d = self.date.split('/')
         return d[0]+d[1]+d[2]
 
@@ -73,7 +72,11 @@ class TournamentReader:
         self.tournaments.append(t)
 
 def main():
-    challonge.set_credentials(CHALLONGE_USERNAME,CHALLONGE_KEY)
+    assert os.path.isfile('/challongekey')
+    with open('/challongekey') as f:
+        CN, CK = f.read().split()
+    challonge.set_credentials(CN, CK)
+    assert len(sys.argv) > 1
     reader = TournamentReader(sys.argv[1])
     writer = TournamentWriter()
     reader.read()

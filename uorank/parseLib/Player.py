@@ -83,10 +83,10 @@ class Player:
         # Return all of the players matches from tournament
         return filter(lambda k: k.tournament.date == tournament.date, self.matches)
 
-    def earnMedals(self, tournament):
+    def earnMedals(self, tournament, league):
         tournaments = len(self.tournaments)
         def _addMedal(medal, msg=''):
-            self.addMedal(medal, tournament.d, msg)
+            self.addMedal(medal, tournament.date, msg)
         if len(self.league.tournaments) == tournaments:
             _addMedal('every_tournament')
         # if len(self.league.rankedtournaments) == rankedtournaments:
@@ -116,8 +116,11 @@ class Player:
         tws = 0
         t8s = 0
         for t in self.tournaments:
-            tws += 1 if t.entrantsDict[self.name] == 1 else 0 # Tournament Wins
-            t8s += 1 if t.entrantsDict[self.name] <= 8 else 0 # Top 8s
+            tmp = filter(lambda k: k.date == t, league.tournaments.values())
+            assert len(tmp) == 1
+            tourney = tmp[0]
+            tws += 1 if tourney.entrantsDict[self.name] == 1 else 0 # Tournament Wins
+            t8s += 1 if tourney.entrantsDict[self.name] <= 8 else 0 # Top 8s
         if tws >= 1:
             _addMedal('tournament_wins_1')
         if tws >= 5:
@@ -133,11 +136,11 @@ class Player:
         if t8s >= 25:
             _addMedal('t8s_25')
         tourney_matches = self.getTournamentMatches(tournament)
-        if tournament.entrantsDict[self.name] == 1:
-            # Player won the tournament
-            losses = 0
-            for match in tourney_matches:
-                if match.winner != self.name:
-                    losses += 1
-            if losses == 0:
-                _addMedal('undefeated_win')
+        # if tournament.entrantsDict[self.name] == 1:
+        #     # Player won the tournament
+        #     losses = 0
+        #     for match in tourney_matches:
+        #         if match.winner != self.name:
+        #             losses += 1
+        #     if losses == 0:
+        #         _addMedal('undefeated_win')

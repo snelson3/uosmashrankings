@@ -7,10 +7,10 @@ import sys
 import xml.etree.ElementTree as ET
 import operator
 import json
-from lib.Match import Match
-from lib.Tournament import Tournament
-from lib.Player import Player
-from lib.TournamentWriter import TournamentWriter
+from uorank.lib.Match import Match
+from uorank.lib.Tournament import Tournament
+from uorank.lib.Player import Player
+from uorank.lib.TournamentWriter import TournamentWriter
 
 class TournamentReader:
     def __init__(self,filename):
