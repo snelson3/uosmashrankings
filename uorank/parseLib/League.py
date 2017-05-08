@@ -52,8 +52,6 @@ class League:
                         player.addAlias(n)
         for t in self.tournaments.values():
             for e in t.entrants:
-                if e['name'].lower() == 'narny':
-                    print e['name']
                 self.addName(e['name'])
 
     def scoreTournament(self, t):

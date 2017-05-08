@@ -88,6 +88,7 @@ class Player:
                 }
         return {
             'name': self.getAliases()[0],
+            'aliases': self.getAliases()[1:],
             'rating': self.rating.exposure,
             'matches': map(lambda m: getMatchInfo(m), self.matches),
             'wins': self.getWins(),
