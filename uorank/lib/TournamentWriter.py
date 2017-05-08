@@ -19,14 +19,16 @@ class TournamentWriter:
 
             for match in tournament.bracket:
                 m = {}
+                assert match.player1.name in map(lambda k: k[0], players)
                 m['Player1'] = match.player1.name
+                assert match.player2.name in map(lambda k: k[0], players)
                 m['Player2'] = match.player2.name
                 m['rnd'] = match.rnd
                 m['number'] = match.number
                 m['winner'] = match.winner.name
                 matches.append(m)
 
-            jsn = {};
+            jsn = {}
             jsn['Date'] = tournament.date
             jsn['Entrants'] = players
             jsn['Game'] = tournament.game

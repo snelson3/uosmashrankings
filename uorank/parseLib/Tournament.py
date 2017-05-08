@@ -6,7 +6,6 @@ class Tournament:
     def __init__(self,fn):
         self.fn = fn
         self.di = self.readUOTN(fn)
-        self.entrantsDict = self.getEntrantsDict() # This should get combined with entrants later
         self.entrants = self.getEntrants()
         self.date = self.di['Date'][:10]
         self.matches = self.getMatches()
@@ -61,7 +60,7 @@ class Tournament:
     def getEntrantsDict(self):
         entrants = {}
         for player in self.di['Entrants']:
-            entrants[player[0]] = player[1]
+            entrants[player[0].replace(" ","").lower()] = player[1]
         return entrants
 
     def getMatches(self):

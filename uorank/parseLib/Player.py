@@ -4,9 +4,10 @@ ACTIVETHRESHOLD = 5
 
 class Player:
     # Player class keeping track of all the stats calculated for each player
-    def __init__(self, name, rating, league, game='Melee', ):
-        self.name = str(name)
-        self.rating = rating
+    def __init__(self, name, league, game='Melee', ):
+        self.name = name.replace(" ", "").lower()
+        self.aliases = [name]
+        self.rating = league.env.Rating()
         self.place = -1
         self.oldplace = 0 # Not sure if needed
         self.tournaments = {}
@@ -16,17 +17,39 @@ class Player:
         self.medals = {}
         self.league = league
 
+    def getName(self,entrants):
+        # Given a list of entrants, return the name the player used there, or -1
+        e = map(lambda k: k.lower().replace(" ",""), entrants)
+        a = map(lambda k: k.lower().replace(" ",""), self.aliases)
+        for n in range(len(e)):
+            if e[n] in a:
+                return entrants[n]
+        return -1
+
+    def addAlias(self,a):
+        if a not in self.aliases:
+            self.aliases.append(a)
+
+    def getAliases(self):
+        return self.aliases
+
+    def isName(self,name):
+        if name in self.getAliases():
+            return True
+        return False
+
     def checkActive(self, tournaments):
-        # Returns True if player has been to last ACTIVETHRESHOLD tournaments
+        # Returns Trues if player has been to last ACTIVETHRESHOLD tournaments
         if not filter(lambda k: k in self.tournaments.values(), tournaments.values()[::-1][:ACTIVETHRESHOLD]):
             self.place = -1
 
     def getWins(self):
         # Returns the number of wins the player has had
-        return len(filter(lambda m: m.winner == self.name, self.matches))
+        return len(filter(lambda m: m.winner in self.getAliases(), self.matches))
 
     def addTournamentMatch(self, m, newrating):
-        self.tournaments[m.tournament.date] = m.tournament
+        if m.tournament.date not in self.tournaments:
+            self.tournaments[m.tournament.date] = m.tournament
         self.matches.append(m)
         self.setRating(newrating)
 
@@ -34,12 +57,12 @@ class Player:
         self.rating = nr
 
     def writeRank(self):
-        with open(os.path.join("players",self.game,self.game+"-"+self.name+".json"), "w") as f:
+        with open(os.path.join("players",self.game,self.game+"-"+self.getAliases()[0]+".json"), "w") as f:
             json.dump(self.toDict(), f, indent=4)
 
     def getSummary(self):
         return {
-            'name': self.game+'-'+self.name,
+            'name': self.game+'-'+self.getAliases()[0],
             'num_tourneys': len(self.tournaments),
             'ELO': self.rating.exposure,
             'GAME': self.game
@@ -49,22 +72,22 @@ class Player:
         # Returns a dictionary containing all of the player's relevent stats
         def getMatchInfo(match):
             m = dict()
-            if match.player1 == self.name:
+            if self.isName(match.player1):
                 return {
                     'opponent': match.player2,
                     'opponent_skill_change': match.p2change,
                     'skill_change': match.p1change,
-                    'win': True if match.winner == self.name else False
+                    'win': True if self.isName(match.winner) else False
                 }
             else:
                 return {
                     'opponent': match.player1,
                     'opponent_skill_change': match.p1change,
                     'skill_change': match.p2change,
-                    'win': True if match.winner == self.name else False
+                    'win': True if self.isName(match.winner) else False
                 }
         return {
-            'name': self.name,
+            'name': self.getAliases()[0],
             'rating': self.rating.exposure,
             'matches': map(lambda m: getMatchInfo(m), self.matches),
             'wins': self.getWins(),
@@ -83,7 +106,7 @@ class Player:
         # Return all of the players matches from tournament
         return filter(lambda k: k.tournament.date == tournament.date, self.matches)
 
-    def earnMedals(self, tournament, league):
+    def earnMedals(self, tournament):
         tournaments = len(self.tournaments)
         def _addMedal(medal, msg=''):
             self.addMedal(medal, tournament.date, msg)
@@ -116,11 +139,12 @@ class Player:
         tws = 0
         t8s = 0
         for t in self.tournaments:
-            tmp = filter(lambda k: k.date == t, league.tournaments.values())
+            tmp = filter(lambda k: k.date == t, self.league.tournaments.values())
             assert len(tmp) == 1
             tourney = tmp[0]
-            tws += 1 if tourney.entrantsDict[self.name] == 1 else 0 # Tournament Wins
-            t8s += 1 if tourney.entrantsDict[self.name] <= 8 else 0 # Top 8s
+            ed = tourney.getEntrantsDict()
+            tws += 1 if ed[self.getName(ed.keys())] == 1 else 0 # Tournament Wins
+            t8s += 1 if ed[self.getName(ed.keys())] <= 8 else 0 # Top 8s
         if tws >= 1:
             _addMedal('tournament_wins_1')
         if tws >= 5:
@@ -136,11 +160,19 @@ class Player:
         if t8s >= 25:
             _addMedal('t8s_25')
         tourney_matches = self.getTournamentMatches(tournament)
-        # if tournament.entrantsDict[self.name] == 1:
-        #     # Player won the tournament
-        #     losses = 0
-        #     for match in tourney_matches:
-        #         if match.winner != self.name:
-        #             losses += 1
-        #     if losses == 0:
-        #         _addMedal('undefeated_win')
+        if tournament.getEntrantsDict()[self.getName(tournament.getEntrantsDict().keys())] == 1:
+            # Player won the tournament
+            losses = 0
+            for match in tourney_matches:
+                if not self.isName(match.winner):
+                    losses += 1
+                    if int(match.round) < 0:
+                        _addMedal('win_from_losers_'+tournament.date.replace("/",""))
+            if losses == 0:
+                _addMedal('undefeated_win_'+tournament.date.replace("/", ""))
+        else:
+            losses = []
+            for match in tourney_matches:
+                if not self.isName(match.winner):
+                    losses.append(match)
+            assert len(losses) == 2

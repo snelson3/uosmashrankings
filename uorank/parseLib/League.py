@@ -9,16 +9,52 @@ class League:
         self.tournaments = {}
         self.players = {} # Player name is the key
 
+    def getPlayerNames(self):
+        return self.players.keys()
+
+    def getPlayers(self):
+        return self.players.values()
+
     def loadTournaments(self, dir='.'):
         # They need to be loaded in order but testing right now
         for fn in os.listdir(os.path.join(dir,"tournaments",self.game)):
             self.tournaments[fn] = Tournament(os.path.join("tournaments",self.game,fn))
 
+    def getPlayer(self, name):
+        try:
+            return self.players[name.replace(" ", "").lower()]
+        except KeyError:
+            for p in self.getPlayers():
+                if name in p.getAliases():
+                    return p
+        return -1
+
+    def addPlayer(self,name):
+        self.players[name.replace(" ","").lower()] = Player(name,self)
+
+    def addName(self, name):
+        if self.getPlayer(name) == -1:
+            self.addPlayer(name)
+        else:
+            self.getPlayer(name).addAlias(name)
+        return self.getPlayer(name)
 
     def loadPlayers(self):
+        if os.path.isfile("aliases.txt"):
+            with open("aliases.txt") as f:
+                # name, alias1, alias2, alias3
+                for line in f:
+                    line = line.strip().split(',')
+                    name = line[0]
+                    aliases = line[1:]
+                    player = self.addName(name)
+                    for n in aliases:
+                        player.addAlias(n)
         for t in self.tournaments.values():
             for e in t.entrants:
-                self.players[e['name']] = Player(e['name'], self.env.Rating(), self)
+                if e['name'].lower() == 'narny':
+                    print e['name']
+                self.addName(e['name'])
 
     def scoreTournament(self, t):
         print "DATE " + str(t.date)
@@ -29,10 +65,6 @@ class League:
         self.updatePlacings()
         self.updateRanks(t.entrants, t)
         t.writeUpdatedTournament()
-
-    def getPlayer(self, name):
-        assert name in self.players.keys()
-        return self.players[name]
 
     def scoreMatch(self, m):
         # it would be nice if the match had a link t
@@ -45,30 +77,30 @@ class League:
         loser.addTournamentMatch(m, loser_newrat)
 
     def updatePlacings(self):
-        for player in self.players.values():
+        for player in self.getPlayers():
             player.temprating = player.rating.exposure
-        newlist = sorted(self.players.values(), key=lambda x: x.temprating, reverse=True)
-        for e in self.players.values():
+        newlist = sorted(self.getPlayers(), key=lambda x: x.temprating, reverse=True)
+        for e in self.getPlayers():
             if len(e.tournaments) < 2 or not e.checkActive(self.tournaments) or e.name == 'BYE':
                 e.place = -1
                 newlist.remove(e) # what is this for
         for i in range(len(newlist)):
             newlist[i].place = i+1
-        # Not sure if this method is relevant
+        # Not sure if this method is relevant=
 
     def updateRanks(self, entrants, tournament):
         for p in entrants:
-            player = self.players[p['name']]
+            player = self.getPlayer(p['name'])
             if (player.oldplace == -1) and (player.place != -1):
                 p['rank_change'] = 'Ranked!'
             else:
                 p['rank_change'] = player.oldplace-player.place
             player.oldplace = player.place
-            player.earnMedals(tournament,self)
+            player.earnMedals(tournament)
 
     def writeRankings(self):
         playerlist = []
-        for player in self.players.values():
+        for player in self.getPlayers():
             if player.name == 'BYE':
                 continue
             player.checkActive(self.tournaments)

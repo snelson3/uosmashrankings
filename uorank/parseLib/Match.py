@@ -20,8 +20,8 @@ class Match:
 
     def getResults(self,p1,p2):
         # return winner, loser
-        assert self.winner in [p1.name, p2.name]
-        if self.winner == p1.name:
+        assert self.winner in p1.getAliases()+p2.getAliases()
+        if self.winner in p1.getAliases():
             return p1, p2
         return p2, p1
 
