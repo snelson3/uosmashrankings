@@ -1,2 +1,4 @@
 make tio parser not show time in date 
 validate input
+players shouldn't be "ranked" until they have 10 matches
+ranked and unranked tournaments

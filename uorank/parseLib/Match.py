@@ -25,6 +25,17 @@ class Match:
             return p1, p2
         return p2, p1
 
+    def getLoser(self,winner):
+        if winner.isName(self.player1):
+            return self.player2
+        return self.player1
+
+    def getWinner(self,loser):
+        if loser.isName(self.player1):
+            return self.player2
+        return self.player1
+
+
     def setChange(self, winner, loser):
         # Records the change in skill for each player
         if self.player1 == self.winner:

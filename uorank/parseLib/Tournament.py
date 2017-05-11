@@ -18,6 +18,13 @@ class Tournament:
         f.close()
         return t
 
+    def getHighestRound(self):
+        i = -1
+        for m in self.matches:
+            i = max(i, m.round)
+        return i
+
+
     def writeUpdatedTournament(self):
         with open(os.path.join("updatedtournaments",self.game,self.fn),"w") as f:
             json.dump(self.toDict(),f,indent=4)

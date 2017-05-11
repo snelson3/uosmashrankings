@@ -68,7 +68,11 @@ class League:
         # it would be nice if the match had a link t
         if m.isBye():
             return # Not sure what this is for
-        winner, loser = self.getPlayer(m.player1), self.getPlayer(m.player2)
+        p1 = self.getPlayer(m.player1)
+        p2 = self.getPlayer(m.player2)
+        p1.medalsProgress['oldrating'] = p1.getRating()
+        p2.medalsProgress['oldrating'] = p2.getRating()
+        winner, loser = m.getResults(self.getPlayer(m.player1), self.getPlayer(m.player2))
         winner_newrat, loser_newrat = self.env.rate_1vs1( winner.rating, loser.rating)
         m.setChange(winner_newrat.exposure - winner.rating.exposure, loser_newrat.exposure - loser.rating.exposure)
         winner.addTournamentMatch(m, winner_newrat)
@@ -84,7 +88,14 @@ class League:
                 newlist.remove(e) # what is this for
         for i in range(len(newlist)):
             newlist[i].place = i+1
-        # Not sure if this method is relevant=
+        # Not sure if this method is doing anything
+
+    def getRankDict(self):
+        player_ranks = {}
+        sorted_ranks = sorted(self.getPlayers(), key=lambda k: k.getRating())
+        for r in range(len(sorted_ranks)):
+            player_ranks[sorted_ranks[r]] = r+1
+        return player_ranks
 
     def updateRanks(self, entrants, tournament):
         for p in entrants:
@@ -99,9 +110,10 @@ class League:
     def writeRankings(self):
         playerlist = []
         for player in self.getPlayers():
+            player.addFinalMedals()
             if player.name == 'BYE':
                 continue
-            player.checkActive(self.tournaments)
+            player.checkActive(self.tournaments) # ...
             player.writeRank()
             playerlist.append(player.getSummary())
             with open(os.path.join("players",self.game+"-playerlist.json"),"w") as f:

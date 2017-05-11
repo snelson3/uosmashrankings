@@ -16,6 +16,13 @@ class Player:
         self.rank_change = ''
         self.medals = {}
         self.league = league
+        self.medalsProgress = {
+            'old_rating': 0,
+            'better_beats': 0,
+            'better_losses': 0,
+            'better_beats_overall': 0,
+            'better_losses_overall': 0
+        }
 
     def getName(self,entrants):
         # Given a list of entrants, return the name the player used there, or -1
@@ -52,6 +59,10 @@ class Player:
             self.tournaments[m.tournament.date] = m.tournament
         self.matches.append(m)
         self.setRating(newrating)
+        self.progressMedals(m)
+
+    def getRating(self):
+        return self.rating
 
     def setRating(self, nr):
         self.rating = nr
@@ -107,10 +118,27 @@ class Player:
         # Return all of the players matches from tournament
         return filter(lambda k: k.tournament.date == tournament.date, self.matches)
 
+    def progressMedals(self,match):
+        def _addMedal(medal, date=match.tournament.date, msg=''):
+            self.addMedal(medal, date, msg)
+        # Called after scoring each match
+        if self.isName(match.winner):
+            loser = self.league.getPlayer(match.getLoser(self))
+            if loser.medalsProgress['oldrating'] > self.medalsProgress['oldrating']:
+                self.medalsProgress['better_beats'] += 1
+                self.medalsProgress['better_beats_overall'] += 1
+        else:
+            winner = self.league.getPlayer(match.getWinner(self))
+            if winner.medalsProgress['oldrating'] > self.medalsProgress['oldrating']:
+                self.medalsProgress['better_losses_overall'] += 1
+                self.medalsProgress['better_losses_overall'] += 1
+
+
     def earnMedals(self, tournament):
+        # Called at the end of each tournament
         tournaments = len(self.tournaments)
-        def _addMedal(medal, msg=''):
-            self.addMedal(medal, tournament.date, msg)
+        def _addMedal(medal, date=tournament.date, msg=''):
+            self.addMedal(medal, date, msg)
         if len(self.league.tournaments) == tournaments:
             _addMedal('every_tournament')
         # if len(self.league.rankedtournaments) == rankedtournaments:
@@ -139,7 +167,12 @@ class Player:
             _addMedal('wins_100')
         tws = 0
         t8s = 0
+        losses = 0
         for t in self.tournaments:
+            tm = self.getTournamentMatches(tournament)
+            for match in tm:
+                if not self.isName(match.winner):
+                    losses += 1
             tmp = filter(lambda k: k.date == t, self.league.tournaments.values())
             assert len(tmp) == 1
             tourney = tmp[0]
@@ -148,6 +181,8 @@ class Player:
             t8s += 1 if ed[self.getName(ed.keys())] <= 8 else 0 # Top 8s
         if tws >= 1:
             _addMedal('tournament_wins_1')
+        if tws > 1 and losses == 0:
+            _addMedal('multiple_tournament_wins_while_undefeated')
         if tws >= 5:
             _addMedal('tournament_wins_5')
         if tws >= 25:
@@ -167,13 +202,41 @@ class Player:
             for match in tourney_matches:
                 if not self.isName(match.winner):
                     losses += 1
-                    if int(match.round) < 0:
+                    if tournament.getHighestRound() != match.round:
                         _addMedal('win_from_losers_'+tournament.date.replace("/",""))
             if losses == 0:
                 _addMedal('undefeated_win_'+tournament.date.replace("/", ""))
         else:
             losses = []
             for match in tourney_matches:
+                if self.isName(match.winner):
+                    loser = self.league.getPlayer(match.getLoser(self))
                 if not self.isName(match.winner):
+                    if match.round in [1,2]:
+                        if tournament.getEntrantsDict()[self.getName(tournament.getEntrantsDict())] <= 4:
+                            _addMedal('early_loss_top_4_'+tournament.date.replace("/",""))
                     losses.append(match)
             assert len(losses) == 2
+        if self.medalsProgress['better_beats'] >= 3:
+            _addMedal('beat_3_better_players_'+tournament.date.replace("/",""))
+        self.medalsProgress['better_beats'] = 0
+
+    def addFinalMedals(self):
+        def _addMedal(medal, date=self.matches[-1].tournament.date, msg=''):
+            self.addMedal(medal, date, msg)
+        # Called after all the rankings are in
+        if self.medalsProgress['better_beats_overall'] > self.medalsProgress['better_losses_overall']:
+            _addMedal('beat_good_players_usually')
+        for t in map(lambda k: self.tournaments[k], sorted(self.tournaments.keys())):
+            ed = t.getEntrantsDict()
+            wiar = 0
+            if ed[self.getName(ed.keys())] == 1:
+                wiar += 1
+                if wiar == 10:
+                    _addMedal('10_consecutive_tournament_wins', t.date)
+            else:
+                wiar = 0
+        rank_dict = self.league.getRankDict()
+        # name = self.getName(rank_dict.keys()) I'll have to map it
+        # place = rank_dict(self.)
+
