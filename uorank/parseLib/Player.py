@@ -66,15 +66,20 @@ class Player:
                 "seq": "100",
                 "title": 'Winner I'
             },
+            "wins_10": {
+                "desc": "Win 10 games",
+                "seq": "103",
+                "title": "Winner II"
+            },
             "wins_50": {
                 "desc": 'Win 50 games',
                 "seq": "110",
-                "title": 'Winner II'
+                "title": 'Winner III'
             },
             "wins_100": {
                 "desc": 'Win 100 games',
                 "seq": "120",
-                "title": 'Winner III'
+                "title": 'Winner IV'
             },
             "t8s_1": {
                 "desc": 'Get Top 8 at 1 tournament',
@@ -112,7 +117,7 @@ class Player:
                 "title": 'King of the Bracket'
             },
             "multiple_tournament_wins_while_undefeated": {
-                "desc": '',
+                "desc": 'Win more than one tournament and have 0 losses',
                 "seq": "210",
                 "title": 'Undisputed Champion'
             },
@@ -147,15 +152,19 @@ class Player:
                 "title": 'Hidden Boss'
             }
         }
+        sname = name if '&' not in name else name[:name.index('&')]
         md = {
-            "short": short
+            "short": short,
+            "seq": medals[sname]['seq']
         }
         try:
-            md['long'] = medals[name]['desc']
-            md['title'] = medals[name]['title']
+            md['long'] = medals[sname]['desc']
+            md['title'] = medals[sname]['title']
         except:
             md['long'] = ''
-            md['title'] = name
+            md['title'] = sname
+        if '&' in name:
+            md['title'] += name[name.index('&')+1:]
         return md
 
     def getName(self,entrants):
@@ -331,14 +340,10 @@ class Player:
             t8s += 1 if ed[self.getName(ed.keys())] <= 8 else 0 # Top 8s
         if tws >= 1:
             _addMedal('tournament_wins_1')
-        if tws > 1 and losses == 0:
-            _addMedal('multiple_tournament_wins_while_undefeated')
         if tws >= 5:
             _addMedal('tournament_wins_5')
         if tws >= 25:
             _addMedal('tournament_wins_25')
-        if tws > tournaments-tws:
-            _addMedal('majority_tournament_wins')
         if t8s >= 1:
             _addMedal('t8s_1')
         if t8s >= 10:
@@ -353,9 +358,9 @@ class Player:
                 if not self.isName(match.winner):
                     losses += 1
                     if tournament.getHighestRound() != match.round:
-                        _addMedal('win_from_losers_'+tournament.date.replace("/",""))
+                        _addMedal('win_from_losers& of '+tournament.date)
             if losses == 0:
-                _addMedal('undefeated_win_'+tournament.date.replace("/", ""))
+                _addMedal('undefeated_win& of '+tournament.date)
         else:
             losses = []
             for match in tourney_matches:
@@ -364,11 +369,11 @@ class Player:
                 if not self.isName(match.winner):
                     if match.round in [1,2]:
                         if tournament.getEntrantsDict()[self.getName(tournament.getEntrantsDict())] <= 4:
-                            _addMedal('early_loss_top_4_'+tournament.date.replace("/",""))
+                            _addMedal('early_loss_top_4& of '+tournament.date)
                     losses.append(match)
             assert len(losses) == 2
-        if self.medalsProgress['better_beats'] >= 3:
-            _addMedal('beat_3_better_players_'+tournament.date.replace("/",""))
+        # if self.medalsProgress['better_beats'] >= 3:
+        #     _addMedal('beat_3_better_players& of '+tournament.date) I think this is broken
         self.medalsProgress['better_beats'] = 0
 
     def addFinalMedals(self):
@@ -386,7 +391,10 @@ class Player:
                     _addMedal('10_consecutive_tournament_wins', t.date)
             else:
                 wiar = 0
+        # if tws > 1 and losses == 0:
+        #     _addMedal('multiple_tournament_wins_while_undefeated')
         rank_dict = self.league.getRankDict()
         # name = self.getName(rank_dict.keys()) I'll have to map it
         # place = rank_dict(self.)
-
+        if tws > tournaments-tws:
+            _addMedal('majority_tournament_wins')
