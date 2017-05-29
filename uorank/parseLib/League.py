@@ -126,7 +126,7 @@ class League:
         playerlist = []
         aliasMap = {}
         for player in self.getPlayers():
-            # player.addFinalMedals()
+            player.addFinalMedals()
             if player.name == 'BYE':
                 continue
             if not player.isRanked():

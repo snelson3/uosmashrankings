@@ -1,4 +1,5 @@
 import os, json
+from collections import defaultdict
 
 ACTIVETHRESHOLD = 5
 
@@ -126,8 +127,18 @@ class Player:
                 "seq": "220",
                 "title": 'Cannot be Stopped'
             },
+            "no_longer_dominated": {
+                "desc": 'Beat a player after they had beat you at least 3 times in a row',
+                "seq": "224",
+                "title": "Showing Improvement"
+            },
+            "dominating": {
+                "desc": 'Beat the same player at least 3 times in a row',
+                "seq": "225",
+                "title": "Dominating"
+            },
             "beat_good_players_usually": {
-                "desc": '',
+                "desc": 'Beat players ranked above you more often than you lose to them',
                 "seq": "230",
                 "title": 'Am I unranked trash?'
             },
@@ -234,6 +245,11 @@ class Player:
             'GAME': self.game
         }
 
+    def getOpponent(self,match):
+        if self.isName(match.player1):
+            return match.player2
+        return match.player1
+
     def toDict(self):
         # Returns a dictionary containing all of the player's relevent stats
         def getMatchInfo(match):
@@ -271,7 +287,7 @@ class Player:
     def addMedal(self, medal, date, msg=''):
         if medal in self.medals.keys():
             return
-        self.medals[medal] = self.translateMedal(medal,"Achieved on " + str(date) + str(msg))
+        self.medals[medal] = self.translateMedal(medal,str(date) + str(msg))
 
     def getTournamentMatches(self,tournament):
         # Return all of the players matches from tournament
@@ -377,24 +393,48 @@ class Player:
         self.medalsProgress['better_beats'] = 0
 
     def addFinalMedals(self):
-        def _addMedal(medal, date=self.matches[-1].tournament.date, msg=''):
+        if len(self.matches) == 0:
+            return # fuck this
+        def _addMedal(medal, date=self.matches[-1].date, msg=''):
             self.addMedal(medal, date, msg)
         # Called after all the rankings are in
-        if self.medalsProgress['better_beats_overall'] > self.medalsProgress['better_losses_overall']:
-            _addMedal('beat_good_players_usually')
+        # This one needs to be unit tested well
+        # if self.medalsProgress['better_beats_overall'] > self.medalsProgress['better_losses_overall']:
+        #     _addMedal('beat_good_players_usually')
+        wiar = 0
+        twins = 0
+        tlosses = 0
+        losses = 0
         for t in map(lambda k: self.tournaments[k], sorted(self.tournaments.keys())):
-            ed = t.getEntrantsDict()
-            wiar = 0
-            if ed[self.getName(ed.keys())] == 1:
+            for match in self.getTournamentMatches(t):
+                if not self.isName(match.winner):
+                    losses += 1
+            if self.isName(t.getWinner()['name']):
+                twins += 1
                 wiar += 1
                 if wiar == 10:
                     _addMedal('10_consecutive_tournament_wins', t.date)
             else:
                 wiar = 0
-        # if tws > 1 and losses == 0:
-        #     _addMedal('multiple_tournament_wins_while_undefeated')
-        rank_dict = self.league.getRankDict()
-        # name = self.getName(rank_dict.keys()) I'll have to map it
-        # place = rank_dict(self.)
-        if tws > tournaments-tws:
+                tlosses += 1
+
+        if twins > 1 and losses == 0:
+            _addMedal('multiple_tournament_wins_while_undefeated')
+        if twins > tlosses:
             _addMedal('majority_tournament_wins')
+
+        opponents = defaultdict(list)
+        for m in reversed(self.matches):
+            opponents[self.getOpponent(m)].append('w' if self.isName(m.winner) else 'l')
+        for o in opponents.keys():
+            matches = opponents[o]
+            if len(matches) >= 3:
+                if matches[0] == 'w' and matches[1] == 'w' and matches[2] == 'w':
+                    # dominating
+                    _addMedal('dominating& '+o)
+            if len(matches) >= 4:
+                if matches[0] == 'w' and matches[1] == 'l' and matches[2] == 'l' and matches[3] == 'l':
+                    # no longer dominated
+                    _addMedal('no_longer_dominated& over '+o)
+
+
