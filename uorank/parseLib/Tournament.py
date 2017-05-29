@@ -82,4 +82,4 @@ class Tournament:
     def getWinner(self):
         w =  filter(lambda k: k['place'] == 1, self.entrants)
         assert len(w) == 1
-        return w
+        return {'name':w[0]['name'], 'real_name': w[0]['real_name']}
