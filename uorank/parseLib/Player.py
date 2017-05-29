@@ -26,10 +26,125 @@ class Player:
 
     def translateMedal(self,name,short):
         medals = {
-            "xxx": {
+            "games_50": {
+                "desc": 'Play 50 games.',
+                "seq": "020",
+                "title": 'Veteran I'
+            },
+            "games_100": {
+                "desc": 'Play 100 games',
+                "seq": "030",
+                "title": 'Veteran II'
+            },
+            "games_1000": {
+                "desc": 'Play 1000 games',
+                "seq": "040",
+                "title": 'Veteran III'
+            },
+            "tournaments_10": {
+                "desc": 'Play in 10 tournaments',
+                "seq": "050",
+                "title": 'Grinder I'
+            },
+            "tournaments_50": {
+                "desc": 'Play in 50 tournaments',
+                "seq": "060",
+                "title": 'Grinder II'
+            },
+            "tournaments_100": {
+                "desc": 'Play in 100 tournaments',
+                "seq": "070",
+                "title": 'Grinder III'
+            },
+            "every_tournament": {
+                "desc": 'Enter every tournament',
+                "seq": "080",
+                "title": 'Dedicated Tournamentgoer'
+            },
+            "wins_1": {
+                "desc": 'Win 1 game',
+                "seq": "100",
+                "title": 'Winner I'
+            },
+            "wins_50": {
+                "desc": 'Win 50 games',
+                "seq": "110",
+                "title": 'Winner II'
+            },
+            "wins_100": {
+                "desc": 'Win 100 games',
+                "seq": "120",
+                "title": 'Winner III'
+            },
+            "t8s_1": {
+                "desc": 'Get Top 8 at 1 tournament',
+                "seq": "140",
+                "title": 'Approaching the Top I'
+            },
+            "t8s_10": {
+                "desc": 'Get Top 8 at 10 tournaments',
+                "seq": "150",
+                "title": 'Approaching the Top II'
+            },
+            "t8s_25": {
+                "desc": 'Get Top 8 at 25 tournaments',
+                "seq": "160",
+                "title": 'Approaching the Top III'
+            },
+            "tournament_wins_1": {
+                "desc": 'Win 1 tournament',
+                "seq": "170",
+                "title": 'Am I the best yet? I'
+            },
+            "tournament_wins_5": {
+                "desc": 'Win 5 tournaments',
+                "seq": "180",
+                "title": 'Am I the best yet? II'
+            },
+            "tournament_wins_25": {
+                "desc": 'Win 25 tournaments',
+                "seq": "190",
+                "title": 'Am I the best yet? III'
+            },
+            "majority_tournament_wins": {
+                "desc": 'Win the majority of the tournaments you enter',
+                "seq": "200",
+                "title": 'King of the Bracket'
+            },
+            "multiple_tournament_wins_while_undefeated": {
                 "desc": '',
+                "seq": "210",
+                "title": 'Undisputed Champion'
+            },
+            "10_consecutive_tournament_wins": {
+                "desc": 'Win 10 tournaments in a row',
+                "seq": "220",
+                "title": 'Cannot be Stopped'
+            },
+            "beat_good_players_usually": {
+                "desc": '',
+                "seq": "230",
+                "title": 'Am I unranked trash?'
+            },
+            "win_from_losers": {
+                "desc": 'Win a tournament from the losers bracket',
                 "seq": "000",
-                "title": ''
+                "title": 'Winning the Hard Way'
+            },
+            "undefeated_win": {
+                "desc": 'Win a tournament without losing a match',
+                "seq": "240",
+                "title": 'Easy $$$'
+            },
+            "early_loss_top_4": {
+                "desc": 'Lose in the first round and make top 4',
+                "seq": "250",
+                "title": 'Losers run'
+            },
+            "beat_3_better_players": {
+                "desc": 'Beat 3 players ranked higher than you in one tournament',
+                "seq": "260",
+                "title": 'Hidden Boss'
             }
         }
         md = {
