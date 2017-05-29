@@ -48,8 +48,11 @@ class Match:
     def toDict(self):
         return {
             'player1': self.player1,
+            'player1_real_name': self.tournament.league.getPlayer(self.player1).getAliases()[0],
             'player2': self.player2,
+            'player2_real_name': self.tournament.league.getPlayer(self.player2).getAliases()[0],
             'winner': self.winner,
+            'winner_real_name': self.tournament.league.getPlayer(self.winner).getAliases()[0],
             'rnd': self.round,
             'number': self.matchnum,
             'p1_skill_change': self.p1change,

@@ -2,3 +2,20 @@ make tio parser not show time in date
 validate input
 players shouldn't be "ranked" until they have 10 matches
 ranked and unranked tournaments
+someone should not be in the playerlist unless they have matches right?
+Implement whatever features garpr has I don't (think it's just the head to head thing)
+I'd like players matches to be separated by tournamnet, w ith an overall rank change displayed at the top
+get rid of the "Melee suffix", as well as dlinking the homepage with all the different rankings
+
+Rankings page should only show (B or A rank medals)
+profiles need aliases listed and medals
+search page
+The page that gives a matchup chart of players, (and the ability to select the players)
+Write some basic unit test coverage for uorank (including one unit test per medal)
+
+Ideas for Ranking changes
+Reset the Gamma at the start of each term
+Increase the Gamma for every tournament the player misses (some way to make losses mean more, but not too much)
+placeholder icons for medals
+Not sure if dropping out should count as a loss (imo it should...)
+old matches only count for half or something

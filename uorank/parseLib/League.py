@@ -18,7 +18,10 @@ class League:
     def loadTournaments(self, dir='.'):
         # They need to be loaded in order but testing right now
         for fn in os.listdir(os.path.join(dir,"tournaments",self.game)):
-            self.tournaments[fn] = Tournament(os.path.join("tournaments",self.game,fn))
+            if ".uotn" not in fn:
+                print "ignoring " + fn
+                continue
+            self.tournaments[fn] = Tournament(os.path.join("tournaments",self.game,fn),self)
 
     def getPlayer(self, name):
         try:
@@ -65,7 +68,7 @@ class League:
         t.writeUpdatedTournament()
 
     def scoreMatch(self, m):
-        # it would be nice if the match had a link t
+        # it would be nice if the match had a link somewhere
         if m.isBye():
             return # Not sure what this is for
         p1 = self.getPlayer(m.player1)
@@ -83,7 +86,7 @@ class League:
             player.temprating = player.rating.exposure
         newlist = sorted(self.getPlayers(), key=lambda x: x.temprating, reverse=True)
         for e in self.getPlayers():
-            if len(e.tournaments) < 2 or not e.checkActive(self.tournaments) or e.name == 'BYE':
+            if not e.isRanked():
                 e.place = -1
                 newlist.remove(e) # what is this for
         for i in range(len(newlist)):
@@ -98,24 +101,52 @@ class League:
         return player_ranks
 
     def updateRanks(self, entrants, tournament):
+        # Why am I taking two things?
         for p in entrants:
             player = self.getPlayer(p['name'])
             if (player.oldplace == -1) and (player.place != -1):
                 p['rank_change'] = 'Ranked!'
+            elif not player.isRanked():
+                p['rank_change'] = 'Unranked'
             else:
-                p['rank_change'] = player.oldplace-player.place
+                change = 0
+                for match in tournament.matches:
+                    if p['name'] == match.player1:
+                        change += match.p1change
+                    elif p['name'] == match.player2:
+                        change += match.p2change
+                p['rank_change'] = change
             player.oldplace = player.place
             player.earnMedals(tournament)
 
+    def getTournaments(self):
+        return self.tournaments.values()
+
     def writeRankings(self):
         playerlist = []
+        aliasMap = {}
         for player in self.getPlayers():
-            player.addFinalMedals()
+            # player.addFinalMedals()
             if player.name == 'BYE':
                 continue
-            player.checkActive(self.tournaments) # ...
+            if not player.isRanked():
+                player.place = -1
+            if len(player.tournaments) == 0:
+                continue
             player.writeRank()
-            playerlist.append(player.getSummary())
-            with open(os.path.join("players",self.game+"-playerlist.json"),"w") as f:
-                json.dump(playerlist, f, indent=4)
-            # Pretty sure I also need to generate a tournament list
+            if player.isRanked():
+                playerlist.append(player.getSummary())
+            aliasMap[player.name] = player.getAliases()
+        with open(os.path.join("players",self.game+"-playerlist.json"),"w") as f:
+            json.dump(playerlist, f, indent=4)
+        with open(os.path.join("players",self.game+"-aliasmap.json"), "w") as f:
+            json.dump(aliasMap, f, indent=4)
+        tournamentlist = []
+        for tournament in self.getTournaments():
+            tournamentlist.append({
+                "date": tournament.date,
+                "entrants": len(tournament.getEntrants()),
+                "winner": tournament.getWinner()
+            })
+        with open(os.path.join("updatedtournaments",self.game+"-tournamentlist.json"), "w") as f:
+            json.dump(tournamentlist, f, indent=4)

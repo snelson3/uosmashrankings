@@ -24,6 +24,25 @@ class Player:
             'better_losses_overall': 0
         }
 
+    def translateMedal(self,name,short):
+        medals = {
+            "xxx": {
+                "desc": '',
+                "seq": "000",
+                "title": ''
+            }
+        }
+        md = {
+            "short": short
+        }
+        try:
+            md['long'] = medals[name]['desc']
+            md['title'] = medals[name]['title']
+        except:
+            md['long'] = ''
+            md['title'] = name
+        return md
+
     def getName(self,entrants):
         # Given a list of entrants, return the name the player used there, or -1
         e = map(lambda k: k.lower().replace(" ",""), entrants)
@@ -40,15 +59,22 @@ class Player:
     def getAliases(self):
         return self.aliases
 
+    def getTrueName(self):
+        return self.name
+
     def isName(self,name):
         if name in self.getAliases():
             return True
         return False
 
-    def checkActive(self, tournaments):
-        # Returns Trues if player has been to last ACTIVETHRESHOLD tournaments
-        if not filter(lambda k: k in self.tournaments.values(), tournaments.values()[::-1][:ACTIVETHRESHOLD]):
-            self.place = -1
+    def isRanked(self):
+        if self.name == 'BYE':
+            return False
+        if len(self.tournaments) < 2:
+            return False
+        if len(filter(lambda k: k in self.tournaments.values(), self.league.tournaments.values()[::-1][:ACTIVETHRESHOLD])) < 1:
+            return False
+        return True
 
     def getWins(self):
         # Returns the number of wins the player has had
@@ -62,7 +88,12 @@ class Player:
         self.progressMedals(m)
 
     def getRating(self):
-        return self.rating
+        return self.rating.exposure
+
+    def calculateRating(self):
+        if self.isRanked():
+            return self.getRating()
+        return 'Unranked'
 
     def setRating(self, nr):
         self.rating = nr
@@ -87,15 +118,19 @@ class Player:
                 return {
                     'opponent': match.player2,
                     'opponent_skill_change': match.p2change,
+                    'opponent_real_name': self.league.getPlayer(match.player2).getAliases()[0],
                     'skill_change': match.p1change,
-                    'win': True if self.isName(match.winner) else False
+                    'win': True if self.isName(match.winner) else False,
+                    'date': match.tournament.date
                 }
             else:
                 return {
                     'opponent': match.player1,
                     'opponent_skill_change': match.p1change,
+                    'opponent_real_name': self.league.getPlayer(match.player1).getAliases()[0],
                     'skill_change': match.p2change,
-                    'win': True if self.isName(match.winner) else False
+                    'win': True if self.isName(match.winner) else False,
+                    'date': match.tournament.date
                 }
         return {
             'name': self.getAliases()[0],
@@ -112,7 +147,7 @@ class Player:
     def addMedal(self, medal, date, msg=''):
         if medal in self.medals.keys():
             return
-        self.medals[medal] = "Achieved on " + str(date) + str(msg)
+        self.medals[medal] = self.translateMedal(medal,"Achieved on " + str(date) + str(msg))
 
     def getTournamentMatches(self,tournament):
         # Return all of the players matches from tournament

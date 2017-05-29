@@ -3,7 +3,8 @@ from Match import Match
 
 class Tournament:
     # Class to keep track of the data parsed from each tournament
-    def __init__(self,fn):
+    def __init__(self,fn,league):
+        self.league = league
         self.fn = fn
         self.di = self.readUOTN(fn)
         self.entrants = self.getEntrants()
@@ -24,15 +25,17 @@ class Tournament:
             i = max(i, m.round)
         return i
 
-
     def writeUpdatedTournament(self):
         with open(os.path.join("updatedtournaments",self.game,self.fn),"w") as f:
             json.dump(self.toDict(),f,indent=4)
 
     def toDict(self):
         # Should ideally output in the uotn format
+        ne = self.entrants
+        for e in ne:
+            e['real_name'] = self.league.getPlayer(e['name']).getAliases()[0]
         return {
-            'entrants': self.entrants,
+            'entrants': ne,
             'date': self.date,
             'matches': map(lambda m: m.toDict(), self.matches),
             'game': self.game
@@ -40,7 +43,7 @@ class Tournament:
 
     def calc_place(self,entrants):
         # Returns the placing of each player
-        # Broken
+        # Broken/Obsolete
         for i in entrants:
             i['fakewins'] = i['fakewins'] + i['wins']
         newlist = sorted(entrants, key=operator.itemgetter('fakewins'))
@@ -75,3 +78,8 @@ class Tournament:
         for m in self.di['Matches']:
             matches.append(Match(m, self))
         return matches
+
+    def getWinner(self):
+        w =  filter(lambda k: k['place'] == 1, self.entrants)
+        assert len(w) == 1
+        return w
