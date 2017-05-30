@@ -66,6 +66,15 @@ class League:
         self.updatePlacings()
         self.updateRanks(t.entrants, t)
         t.writeUpdatedTournament()
+        self.penalizeMissingPlayers(t)
+
+    def penalizeMissingPlayers(self,t):
+        for player in self.getPlayers():
+            if player.name not in t.getEntrantsDict():
+                if player.name=='thundrio':
+                    print player.name
+                player.rating = self.env.Rating(mu=player.rating.mu, sigma=player.rating.sigma)
+
 
     def scoreMatch(self, m):
         # it would be nice if the match had a link somewhere
