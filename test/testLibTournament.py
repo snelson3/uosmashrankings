@@ -6,6 +6,8 @@ class mockTournament():
         self.t = Tournament('1/1/1970')
 
     def addEntrants(self):
+        #TODO
+        pass
 
 class TestTournament(TestCase):
     def mockTournament(self):

@@ -1,4 +1,4 @@
-import json
+import json, os
 from Globals import TNFILENAME
 
 class TournamentWriter:
@@ -9,7 +9,13 @@ class TournamentWriter:
             if fn == None:
                 raise Exception("Output filename cannot be blank")
             fn = fn.split('.')[0]
-            out = open(fn+tournament.game+TNFILENAME, "w")
+
+            game = tournament.game + '-files'
+            if not os.path.exists(game):
+                os.mkdir(game)
+            if not os.path.exists(os.path.join(game,'raw')):
+                os.mkdir(os.path.join(game,'raw'))
+            out = open(os.path.join(game,'raw',fn+TNFILENAME), "w")
 
             players = []
             matches = []

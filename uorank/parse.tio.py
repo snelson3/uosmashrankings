@@ -13,7 +13,7 @@ from uorank.lib.Player import Player
 from uorank.lib.TournamentWriter import TournamentWriter
 
 class TournamentReader:
-    def __init__(self,filename):
+    def __init__(self,filename, game='Melee'):
         if filename == None:
             raise Exception("Must provide a filename to a TIO file")
         self.filename = filename
@@ -21,7 +21,7 @@ class TournamentReader:
         self.players = []
         self.tournaments = []
         self.date = None
-        self.game = ""
+        self.game = game
 
     def getPlayer(self,ID):
         ''' Return the Player associated with the given ID '''
@@ -49,7 +49,7 @@ class TournamentReader:
             p.setId(player.find('ID').text)
             self.players.append(p)
         for tournament in root.iter('Game'):
-            t = Tournament(self.date)
+            t = Tournament(self.date, self.game)
             t.setGame(str(tournament.find('Name').text))
             for entrant in tournament.iter('Entrant'):
                 p = self.getPlayer(entrant.find('PlayerID').text)
@@ -82,7 +82,7 @@ class TournamentReader:
             self.tournaments.append(t)
 
 def main():
-    reader = TournamentReader(sys.argv[1])
+    reader = TournamentReader(sys.argv[1], sys.argv[2])
     writer = TournamentWriter()
     reader.read()
 
@@ -91,3 +91,6 @@ def main():
         writer.storeTournament(tournament,sys.argv[1])
 
 main()
+
+# Usage (NOTE: if under a subdomain like uosmash.challonge... use subdomain-bracketcode)
+# python parse.challonge.py bracketcode game

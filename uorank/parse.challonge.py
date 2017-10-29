@@ -13,7 +13,7 @@ from uorank.lib.Player import Player
 from uorank.lib.TournamentWriter import TournamentWriter
 
 class TournamentReader:
-    def __init__(self,tid):
+    def __init__(self, tid, game='Melee'):
         if tid == None:
             raise Exception("Must provide a tournament Name")
         self.id = tid
@@ -21,7 +21,7 @@ class TournamentReader:
         self.players = []
         self.tournaments = []
         self.date = None
-        self.game = ""
+        self.game = game
 
     def getPlayer(self,ID):
         if (ID == '00000001-0001-0001-0101-010101010101'):
@@ -53,14 +53,14 @@ class TournamentReader:
         self.date  = self.parseDate(tournament["started-at"])
         participants = challonge.participants.index(self.id)
         t = Tournament(self.date)
-        t.setGame(tournament['game-name'])
+        t.setGame(self.game)
         for entrant in participants:
             p = Player(entrant['display-name'])
             p.setId(entrant['id'])
             t.addPlayer(p)
             self.players.append(p)
         matches = challonge.matches.index(self.id)
-        i = 1;
+        i = 1
         for match in matches:
             m = Match()
             m.setP1(self.getPlayer(match['player1-id']))
@@ -77,7 +77,7 @@ def main():
         CN, CK = f.read().split()
     challonge.set_credentials(CN, CK)
     assert len(sys.argv) > 1
-    reader = TournamentReader(sys.argv[1])
+    reader = TournamentReader(sys.argv[1], sys.argv[2])
     writer = TournamentWriter()
     reader.read()
 
@@ -87,3 +87,6 @@ def main():
 
 
 main()
+
+# Usage (NOTE: if under a subdomain like uosmash.challonge... use subdomain-bracketcode)
+# python parse.challonge.py bracketcode game
