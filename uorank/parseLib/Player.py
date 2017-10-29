@@ -207,8 +207,9 @@ class Player:
             return False
         if len(self.tournaments) < 2:
             return False
-        if len(filter(lambda k: k in self.tournaments.values(), self.league.tournaments.values()[::-1][:ACTIVETHRESHOLD])) < 1:
-            return False
+        # No reason to support this right now., can probably rewrite it to be better
+        # if len(filter(lambda k: k in self.tournaments.values(), self.league.tournaments.values()[::-1][:ACTIVETHRESHOLD])) < 1:
+        #     return False
         return True
 
     def getWins(self):
