@@ -1,11 +1,32 @@
-import os, json
+import os, json, shutil
 from Player import Player
 from Tournament import Tournament
 
+
+CLEANUP = True
+
 class League:
-    def __init__(self, env, game='Melee'):
+    def __init__(self, env, game='melee'):
         self.env = env
         self.game = game
+        assert os.path.isdir('ranking-data') and os.path.isdir(os.path.join('ranking-data',game+'-files')), 'no rankings to read from!'
+        self.gamepath = os.path.join('ranking-data',game + '-files')
+
+        if CLEANUP:
+            # Clean up old files, but leave the raw tournaments folder
+            if os.path.exists(os.path.join(self.gamepath,'updated')):
+                shutil.rmtree(os.path.join(self.gamepath,'updated'))
+            if os.path.exists(os.path.join(self.gamepath,'players')):
+                shutil.rmtree(os.path.join(self.gamepath,'players'))
+            if os.path.exists(os.path.join(self.gamepath,'playerlist.json')):
+                os.remove(os.path.join(self.gamepath,'playerlist.json'))
+            if os.path.exists(os.path.join(self.gamepath,'tournamentlist.json')):
+                os.remove(os.path.join(self.gamepath,'tournamentlist.json'))
+            if os.path.exists(os.path.join(self.gamepath,'aliasmap.json')):
+                os.remove(os.path.join(self.gamepath,'aliasmap.json'))
+
+        os.mkdir(os.path.join(self.gamepath,'updated'))
+        os.mkdir(os.path.join(self.gamepath,'players'))
         self.tournaments = {}
         self.players = {} # Player name is the key
 
@@ -17,11 +38,11 @@ class League:
 
     def loadTournaments(self, dir='.'):
         # They need to be loaded in order but testing right now
-        for fn in os.listdir(os.path.join(dir,"tournaments",self.game)):
+        for fn in os.listdir(os.path.join(dir,self.gamepath,"raw")):
             if ".uotn" not in fn:
                 print "ignoring " + fn
                 continue
-            self.tournaments[fn] = Tournament(os.path.join("tournaments",self.game,fn),self)
+            self.tournaments[fn] = Tournament(fn,self)
 
     def getPlayer(self, name):
         try:
@@ -43,8 +64,8 @@ class League:
         return self.getPlayer(name)
 
     def loadPlayers(self):
-        if os.path.isfile("aliases.txt"):
-            with open("aliases.txt") as f:
+        if os.path.isfile(os.path.join(self.gamepath,"aliases.txt")):
+            with open(os.path.join(self.gamepath,"aliases.txt")) as f:
                 # name, alias1, alias2, alias3
                 for line in f:
                     line = line.strip().split(',')
@@ -146,9 +167,9 @@ class League:
             if player.isRanked():
                 playerlist.append(player.getSummary())
             aliasMap[player.name] = player.getAliases()
-        with open(os.path.join("players",self.game+"-playerlist.json"),"w") as f:
+        with open(os.path.join(self.gamepath,"playerlist.json"),"w") as f:
             json.dump(playerlist, f, indent=4)
-        with open(os.path.join("players",self.game+"-aliasmap.json"), "w") as f:
+        with open(os.path.join(self.gamepath,"aliasmap.json"), "w") as f:
             json.dump(aliasMap, f, indent=4)
         tournamentlist = []
         for tournament in self.getTournaments():
@@ -157,5 +178,5 @@ class League:
                 "entrants": len(tournament.getEntrants()),
                 "winner": tournament.getWinner()
             })
-        with open(os.path.join("updatedtournaments",self.game+"-tournamentlist.json"), "w") as f:
+        with open(os.path.join(self.gamepath,"tournamentlist.json"), "w") as f:
             json.dump(tournamentlist, f, indent=4)

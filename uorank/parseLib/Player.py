@@ -235,7 +235,7 @@ class Player:
         self.rating = nr
 
     def writeRank(self):
-        with open(os.path.join("players",self.game,self.game+"-"+self.getAliases()[0]+".json"), "w") as f:
+        with open(os.path.join(self.league.gamepath,"players",self.getAliases()[0]+".json"), "w") as f:
             json.dump(self.toDict(), f, indent=4)
 
     def getSummary(self):

@@ -10,7 +10,7 @@ class TournamentWriter:
                 raise Exception("Output filename cannot be blank")
             fn = fn.split('.')[0]
 
-            game = tournament.game + '-files'
+            game = os.path.join('ranking-data',tournament.game + '-files')
             if not os.path.exists(game):
                 os.mkdir(game)
             if not os.path.exists(os.path.join(game,'raw')):

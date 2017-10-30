@@ -6,15 +6,15 @@ class Tournament:
     def __init__(self,fn,league):
         self.league = league
         self.fn = fn
-        self.di = self.readUOTN(fn)
+        self.di = self.readUOTN()
         self.entrants = self.getEntrants()
         self.date = self.di['Date'][:10]
         self.matches = self.getMatches()
         self.game = self.di['Game']
         pass
 
-    def readUOTN(self,fn):
-        f = open(fn)
+    def readUOTN(self):
+        f = open(os.path.join(self.league.gamepath,"raw",self.fn))
         t = json.load(f)
         f.close()
         return t
@@ -26,7 +26,7 @@ class Tournament:
         return i
 
     def writeUpdatedTournament(self):
-        with open(os.path.join("updatedtournaments",self.game,self.fn),"w") as f:
+        with open(os.path.join(self.league.gamepath,"updated",self.fn),"w") as f:
             json.dump(self.toDict(),f,indent=4)
 
     def toDict(self):
