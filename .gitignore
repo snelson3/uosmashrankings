@@ -4,3 +4,5 @@ tournaments
 *.tio
 *.uotn
 *.json
+events*
+ranking-data

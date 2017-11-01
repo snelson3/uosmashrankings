@@ -13,7 +13,7 @@ from uorank.lib.Player import Player
 from uorank.lib.TournamentWriter import TournamentWriter
 
 class TournamentReader:
-    def __init__(self, tid, game='Melee'):
+    def __init__(self, tid, game='melee'):
         if tid == None:
             raise Exception("Must provide a tournament Name")
         self.id = tid
@@ -71,22 +71,37 @@ class TournamentReader:
             t.bracket.append(m)
         self.tournaments.append(t)
 
+
 def main():
     assert os.path.isfile('/challongekey')
     with open('/challongekey') as f:
         CN, CK = f.read().split()
     challonge.set_credentials(CN, CK)
     assert len(sys.argv) > 1
-    reader = TournamentReader(sys.argv[1], sys.argv[2])
-    writer = TournamentWriter()
-    reader.read()
+    bracket_ids = []
+    if os.path.isfile(sys.argv[1]):
+        print "reading bracketcodes"
+        # Pointing to a list of bracketcodes
+        with open(sys.argv[1]) as f:
+            for line in f:
+                bracket_ids.append(line.strip())
+    else:
+            bracket_ids.append(sys.argv[1])
 
-    for tournament in reader.tournaments:
-        tournament.rankPlayers()
-        writer.storeTournament(tournament,reader.getDate())
+    for id in bracket_ids:
+        print id
+        reader = TournamentReader(id, sys.argv[2])
+        writer = TournamentWriter()
+        reader.read()
+
+        for tournament in reader.tournaments:
+            tournament.rankPlayers()
+            writer.storeTournament(tournament,reader.getDate())
 
 
 main()
 
 # Usage (NOTE: if under a subdomain like uosmash.challonge... use subdomain-bracketcode)
 # python parse.challonge.py bracketcode game
+# or
+# python parse.challonge.py bracketlinks.dat
