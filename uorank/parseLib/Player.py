@@ -244,8 +244,7 @@ class Player:
         return {
             'name': self.getAliases()[0],
             'num_tourneys': len(self.tournaments),
-            'ELO': self.rating.exposure,
-            'GAME': self.game
+            'ELO': self.rating.exposure
         }
 
     def getOpponent(self,match):

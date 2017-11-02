@@ -68,11 +68,12 @@ class League:
             with open(os.path.join(self.gamepath,"aliases.txt")) as f:
                 # name, alias1, alias2, alias3
                 for line in f:
-                    line = line.strip().split(',')
+                    line = line.strip().split('|')
                     name = line[0]
                     aliases = line[1:]
                     player = self.addName(name)
                     for n in aliases:
+                        print n
                         player.addAlias(n)
         for t in self.tournaments.values():
             for e in t.entrants:
