@@ -203,7 +203,9 @@ class Player:
         return False
 
     def isRanked(self):
-        if self.name == 'BYE':
+        check_is_bye = lambda k: len(k.replace(' ', '')) >= 3 and k.replace(' ', '')[:3].lower() == 'bye' and (
+        len(k.replace(' ', '')) == 3 or (k.replace(' ', '')[3:] in [str(i) for i in range(100)]))
+        if check_is_bye(self.name):
             return False
         if len(self.tournaments) < 2:
             return False
@@ -240,7 +242,7 @@ class Player:
 
     def getSummary(self):
         return {
-            'name': self.game+'-'+self.getAliases()[0],
+            'name': self.getAliases()[0],
             'num_tourneys': len(self.tournaments),
             'ELO': self.rating.exposure,
             'GAME': self.game

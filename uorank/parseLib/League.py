@@ -100,7 +100,7 @@ class League:
     def scoreMatch(self, m):
         # it would be nice if the match had a link somewhere
         if m.isBye():
-            return # Not sure what this is for
+            return # Not sure what this is for, probably because byes shouldn't change points
         p1 = self.getPlayer(m.player1)
         p2 = self.getPlayer(m.player2)
         p1.medalsProgress['oldrating'] = p1.getRating()
@@ -131,8 +131,14 @@ class League:
         return player_ranks
 
     def updateRanks(self, entrants, tournament):
+        # check_is_bye should be a method in Player.py
+        check_is_bye = lambda k: len(k.replace(' ', '')) >= 3 and k.replace(' ', '')[:3].lower() == 'bye' and (
+        len(k.replace(' ', '')) == 3 or (k.replace(' ', '')[3:] in [str(i) for i in range(100)]))
         # Why am I taking two things?
         for p in entrants:
+            # Skip if the player is a bye
+            if check_is_bye(p['name']):
+                continue
             player = self.getPlayer(p['name'])
             if (player.oldplace == -1) and (player.place != -1):
                 p['rank_change'] = 'Ranked!'
@@ -155,14 +161,16 @@ class League:
     def writeRankings(self):
         playerlist = []
         aliasMap = {}
+        check_is_bye = lambda k: len(k.replace(' ', '')) >= 3 and k.replace(' ', '')[:3].lower() == 'bye' and (
+        len(k.replace(' ', '')) == 3 or (k.replace(' ', '')[3:] in [str(i) for i in range(100)]))
         for player in self.getPlayers():
-            player.addFinalMedals()
-            if player.name == 'BYE':
+            if check_is_bye(player.name):
                 continue
             if not player.isRanked():
                 player.place = -1
             if len(player.tournaments) == 0:
                 continue
+            player.addFinalMedals()
             player.writeRank()
             if player.isRanked():
                 playerlist.append(player.getSummary())

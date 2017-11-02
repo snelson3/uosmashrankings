@@ -14,7 +14,8 @@ class Match:
         self.date = tournament.date
 
     def isBye(self):
-        if self.player1 == 'BYE' or self.player2 == 'BYE':
+        check_name = lambda k: len(k.replace(' ','')) >= 3 and k.replace(' ','')[:3].lower() == 'bye' and (len(k.replace(' ','')) == 3 or ( k.replace(' ','')[3:] in [str(i) for i in range(100)]))
+        if check_name(self.player1) or check_name(self.player2):
             return True
         return False
 
