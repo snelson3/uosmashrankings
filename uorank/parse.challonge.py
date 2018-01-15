@@ -104,4 +104,4 @@ main()
 # Usage (NOTE: if under a subdomain like uosmash.challonge... use subdomain-bracketcode)
 # python parse.challonge.py bracketcode game
 # or
-# python parse.challonge.py bracketlinks.dat
+# python parse.challonge.py bracketlinks.dat game
