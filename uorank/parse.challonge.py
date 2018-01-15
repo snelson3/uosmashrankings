@@ -35,9 +35,9 @@ class TournamentReader:
 
     def parseDate(self,date):
         '''YYYY-MM-DDT16:57:17-05:00'''
-        '''split date on T and return first part formatted MM/DD/YYYY'''
+        '''split date on T and return first part formatted YYYY/MM/DD'''
         d = date.date().isoformat().split('-')
-        return d[1]+"/"+d[2]+"/"+d[0]
+        return d[0]+"/"+d[1]+"/"+d[2]
 
     def getDate(self):
         '''
