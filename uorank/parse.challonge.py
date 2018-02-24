@@ -6,7 +6,7 @@
 import sys
 import challonge
 import random
-import json, os
+import json, os, shutil
 from uorank.lib.Match import Match
 from uorank.lib.Tournament import Tournament
 from uorank.lib.Player import Player
@@ -71,6 +71,19 @@ class TournamentReader:
             t.bracket.append(m)
         self.tournaments.append(t)
 
+def cleanDir(game):
+    rank_folder = os.path.join("ranking-data", "{}-files".format(game))
+    paths_to_delete = ["players", "raw", "updated", "aliasmap.json", "playerlist.json", "tournamentlist.json"]
+    if os.path.exists(rank_folder):
+        for p in paths_to_delete:
+            fn = os.path.join(rank_folder,p)
+            if os.path.exists(fn):
+                if os.path.isdir(fn):
+                    shutil.rmtree(fn)
+                    os.mkdir(fn)
+                else:
+                    os.remove(fn)
+
 
 def main():
     assert os.path.isfile('/challongekey')
@@ -87,7 +100,9 @@ def main():
                 bracket_ids.append(line.strip())
     else:
             bracket_ids.append(sys.argv[1])
-
+    if sys.argv[3] == '-d':
+        print '-d'
+        cleanDir(sys.argv[2])
     for id in bracket_ids:
         print id
         reader = TournamentReader(id, sys.argv[2])
@@ -98,10 +113,10 @@ def main():
             tournament.rankPlayers()
             writer.storeTournament(tournament,reader.getDate())
 
-
 main()
 
 # Usage (NOTE: if under a subdomain like uosmash.challonge... use subdomain-bracketcode)
 # python parse.challonge.py bracketcode game
 # or
 # python parse.challonge.py bracketlinks.dat game
+# add -d to the end to empty the ranking-data folder first

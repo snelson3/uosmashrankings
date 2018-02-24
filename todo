@@ -1,4 +1,7 @@
-make tio parser not show time in date 
+names like "#1" need to work right
+case shouldn't matter at all with aliases
+
+make tio parser not show time in date
 validate input
 players shouldn't be "ranked" until they have 10 matches
 ranked and unranked tournaments
