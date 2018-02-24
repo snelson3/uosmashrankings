@@ -65,6 +65,11 @@ class TournamentReader:
             m = Match()
             m.setP1(self.getPlayer(match['player1-id']))
             m.setP2(self.getPlayer(match['player2-id']))
+            winner = match['winner-id'];
+            if winner == None:
+                raise Exception(
+                    "Match of {}-{} has no winner".format(m.getPlayer1().name,m.getPlayer2().name)
+                )
             m.setWinner(self.getPlayer(match['winner-id']))
             m.setRND(match['round'])
             m.setNumber(i)
